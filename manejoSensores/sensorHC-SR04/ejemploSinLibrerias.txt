@@ -1,0 +1,41 @@
+
+/*
+ * 
+ * Ejemplo sin el uso de librerias, pero no esta funcionando correctamente
+ * 
+ * 
+ * 
+ */
+#define ECHO_PIN 5
+#define TRIGGER_PIN 6
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ECHO_PIN, OUTPUT);
+  pinMode(TRIGGER_PIN, INPUT);
+
+}
+
+void loop() {
+   int cm = ping();
+   Serial.print("Distancia: ");
+   Serial.println(cm);
+   delay(1000);
+}
+ 
+int ping() {
+   long duration, distanceCm;
+   
+   digitalWrite(TRIGGER_PIN, LOW);  //para generar un pulso limpio ponemos a LOW 4us
+   delayMicroseconds(4);
+   digitalWrite(TRIGGER_PIN, HIGH);  //generamos Trigger (disparo) de 10us
+   delayMicroseconds(10);
+   digitalWrite(TRIGGER_PIN, LOW);
+   
+   duration = pulseIn(ECHO_PIN, HIGH);  //medimos el tiempo entre pulsos, en microsegundos
+   Serial.print("Duracion: ");
+   Serial.println(duration);
+   
+   distanceCm = duration * 10 / 292/ 2;   //convertimos a distancia, en cm
+   return distanceCm;
+}
