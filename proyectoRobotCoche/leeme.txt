@@ -1,1 +1,18 @@
 Paso a paso desde esta pagina: https://www.luisllamas.es/tag/robot-car/ 
+
+
+
+
+Pasos en la construccion:
+	1) Realizar el montaje de las ruedas
+				Crograma de prueba, comprobacion movimiento: movimiento para adelante --> Movimiento para atras --> parar 
+	2) Montaje de sensor de ultrasonido
+				Programa de prueba, comprobacion detection de obstacurlos: comprobar distancia objetos
+	3) Realizacion de programa para el control de motores y sensor de proximidad
+				Movimiento delante
+				Para al detectar el obstaculo
+				Movimiento trasero
+				Giro
+				Movimiento delantero
+				LOOP
+	
