@@ -34,6 +34,8 @@ void loop()
    fullStop(pinMotorA);
    fullStop(pinMotorB);
    delay(waitTime);
+
+   //sonar.ping_cm(); // obtener el valor en cm (0 = fuera de rango)
 }
  
 void moveForward(const int pinMotor[3], int speed)
