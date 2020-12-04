@@ -1,20 +1,26 @@
 //Libraries
 #include <dht.h>
-dht DHT;
-//Constants
-#define DHT22_PIN 2       // Sensor DHT 22 
-#define YL69_PIN A0       // Sensor YL-69
-#define LED_R_PIN 8       // Led roja (sin agua)
-#define LUZ_PIN A1        // Sensor  de luz
-#define RELE1_PIN 6       // Valor rele 1
-#define RELE2_PIN 5       // Valor rele 2
 
-//Calculo del nivel de luz
+//Motor y sensores
+#define RELE_PIN_1 6       // Valor rele 1
+//#define RELE_PIN_2 5       // Valor rele 2
+#define YL69_PIN_1 A0     // Sensor YL-69 maceta 1
+//#define YL69_PIN_2 A1     // Sensor YL-69 maceta 2
+
+//Sensores externos
+#define S_LUZ A2         // Sensor  de luz
+#define DHT22_PIN 2       // Sensor DHT 22 
+
+
+//Sensor DHT22
+dht DHT;
+
+//Intensidad Sensor LUZ
 const long A = 1000;     //Resistencia en oscuridad en KΩ
 const int B = 15;        //Resistencia a la luz (10 Lux) en KΩ
 const int Rc = 1;       //Resistencia calibracion en KΩ
 
-//Variables
+//Sensor YL69
 int minimo_humedad = 200; // Minimo valor de humedad para el riego 
 int timer_loop = 20000;   // Delay 2 sec.
 int timer_bomba = 7000; // Delay 20 sec.
@@ -22,10 +28,9 @@ int timer_bomba = 7000; // Delay 20 sec.
 void setup()
 {
     //Inicializacion de resto de componentes
-    pinMode(YL69_PIN, INPUT);
-    pinMode(LED_R_PIN, OUTPUT);
-    pinMode(RELE1_PIN, OUTPUT);
-    //pinMode(RELE2_PIN, OUTPUT);
+    pinMode(YL69_PIN_1, INPUT);
+    pinMode(RELE_PIN_1, OUTPUT);
+    //pinMode(RELE_PIN_2, OUTPUT);
     //Inicializacion logs
     Serial.begin(9600);
 }
@@ -33,56 +38,73 @@ void setup()
 void loop()
 {
   //Mostramos los parametros del ambiente
-  imprimeParametros();
+  lecturaDatos();
 
   //Comprobamos la maceta 1
-  regarPlantaUno();
-
+  if (necesitaRiego(YL69_PIN_1)) regar(RELE_PIN_1);
+  //Comprobamos la maceta 2
+  //if (necesitaRiego(YL69_PIN_2)) regar(RELE_PIN_2);
+  
   //Esperamos la siguientes medidas
   delay(timer_loop);
 }
-//PARAMETROS AMBIENTE
-void imprimeParametros()
+//Lectura humedad ambiente
+float humedadAmbiente()
 {
-  Serial.print("Parametros ambiente[");
-  //inicializacion del sensor DHT22
-  int chk = DHT.read22(DHT22_PIN);    
-  //Lectura humedad ambiente
+  int chk = DHT.read22(DHT22_PIN); 
   float hum= DHT.humidity;
-  Serial.print("Humedad: ");
-  Serial.print(hum);
-  //Lectura temperatura ambiente
+  return hum;
+}
+//Lectura temperatura ambiente
+float temperaturadAmbiente()
+{
+  int chk = DHT.read22(DHT22_PIN); 
   float temp= DHT.temperature;
-  Serial.print(" -- Temperatura: ");
-  Serial.print(temp);
-  //Lectura luminosidad
-  int valorLDR = analogRead(LUZ_PIN); 
-  //Calculamos el valor de la luz
+  return temp;
+}
+//Lectura luminosidad
+int lecturaLuz()
+{
+  int valorLDR = analogRead(S_LUZ); 
+  //Calculamos el valor de la luz dependiendo de las resistencias
   int ilum = ((long)(1024-valorLDR)*A*10)/((long)B*Rc*valorLDR);  //usar si LDR entre GND y A0 
-  Serial.print(" -- Luminosidad: ");
-  Serial.print(ilum);
-  Serial.println("]");
+  return ilum;
 }
-void esperaHumedadReal()
+void lecturaDatos()
 {
-  
+  Serial.print("Datos ambiente[ ");
+  float h=humedadAmbiente();
+  Serial.print("Humedad: ");
+  Serial.print(h);
+  float t=temperaturadAmbiente();
+  Serial.print(" -- Temperatura: ");
+  Serial.print(t);
+  int l=lecturaLuz();
+  Serial.print(" -- Int. luz: ");
+  Serial.print(l);
+  Serial.println(" ]");
 }
-//MACETA 1
-void regarPlantaUno()
+bool necesitaRiego(int id){
+  int humedadPlanta1 = analogRead(id);
+  Serial.print("Humedad planta 1:");
+  Serial.println(humedadPlanta1);
+  if (humedadPlanta1 < minimo_humedad) return true;
+  else return false;
+}
+bool tenemosAgua(){
+  return true;
+}
+void regar(int id)
 {
-    //Lectura valor humedad de la tierra
-    int humedadPlanta1 = analogRead(YL69_PIN);
-    Serial.print("Planta 1[ ");
-    Serial.print("Humedad:");
-    Serial.print(humedadPlanta1);
-    //Calculamos si es necesario el riego
-    if (humedadPlanta1 < minimo_humedad){
-      Serial.println(" -- Inicio riego]");
+    //Comprobamos el nivel del agua
+    if (tenemosAgua()){
+      Serial.println(" -- Inicio del riego --");
       //Poner bombas de agua
-      digitalWrite(RELE1_PIN, LOW);
-      //
+      digitalWrite(id, LOW);
+      //esperamos un tiempo
       delay(timer_bomba);
-      //La paramos
-      digitalWrite(RELE1_PIN, HIGH);
+      //Paramos bomba de agua
+      digitalWrite(id, HIGH);  
     }
+    else Serial.println(" -- No tenemos agua para el riego --");
 }
