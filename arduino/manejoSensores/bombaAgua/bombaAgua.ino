@@ -1,4 +1,4 @@
-#define RELE_1_PIN 6     // Valor rele 1
+#define RELE_1_PIN 8     // Valor rele 1
 #define RELE_2_PIN 7     // Valor rele 2
 
 int incomingByte = 0; // valores de entrada

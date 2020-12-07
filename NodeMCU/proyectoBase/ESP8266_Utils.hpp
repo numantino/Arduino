@@ -18,12 +18,6 @@ void ConnectWiFi()
   WiFi.softAP(ssid, password);
   WiFi.softAPConfig(ip, gateway, subnet);
   delay(100);
-  while (WiFi.status() != WL_CONNECTED) 
-  { 
-    delay(100);  
-  }
-  Serial.print("Cliente conectado con la IP: "); 
-  Serial.println(WiFi.localIP());
 }
 void ConnectWiFi_AP(bool useStaticIP = false)
 { 

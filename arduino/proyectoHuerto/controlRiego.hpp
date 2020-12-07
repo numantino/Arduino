@@ -1,37 +1,57 @@
 /*
- * Clase encargada del control del riego automatico
+ * Clase encargada de: 
+ *          control de los sonseres de humedad 
+ *          control de las bombas de agua
  * 
  */
 //Valores control del sensor de humedad de la tierra
-int minimo_humedad = 200; // Minimo valor de humedad para el riego 
-int timer_bomba = 7000;   // Delay 20 sec.
+int minimo_humedad;
+int timer_bomba;
 
-/*
- * Recuperamos informacion de la humedad del suelo
+/**
+ * Funciones para el control del sensor de humedad (YL69)
  */
+void iniYL69(int id, int m)
+{
+  pinMode(id, INPUT);
+  //Inicializamos valor minimo de humedad
+  minimo_humedad = m;  
+}
 int lecturaHumedadSuelo()
 {
  int humedadSuelo = analogRead(SENSOR_YL69);
  return humedadSuelo;
 }
+bool sueloSeco(int h_suelo)
+{
+  if (h_suelo < minimo_humedad) return true;
+  else return false;
+}
 /**
- * activamos el rele para que pueda dar agua durante un tiempo
+ * Funciones para el control del rele, en la bomba de agua
  */
-void activacionRele(int posicion)
+void iniRele(int id, int t)
+{
+  pinMode(id, OUTPUT);
+  //Empezamos con la bomba de agua apagada
+  digitalWrite(id, HIGH); 
+  //Inicializamos el timer de la bomba
+  timer_bomba = t;
+}
+void activacionRele(int id)
 {
   Serial.println(" -- Inicio del riego --");
   //Poner bombas de agua
-  digitalWrite(posicion, LOW);
+  digitalWrite(id, LOW);
   //esperamos un tiempo
   delay(timer_bomba);
   //Paramos bomba de agua
-  digitalWrite(posicion, HIGH);  
+  digitalWrite(id, HIGH);  
+  Serial.println(" -- Fin del riego --");
 }
-/*
- * Calculamos si es necesario realizar el riego, dependiendo de la humedad del suelo
- */
-bool activarRiegoAutomatico()
+void apagarBomba(int id)
 {
+  digitalWrite(id, HIGH); 
 }
 /*
  * Interfaz web
@@ -48,15 +68,15 @@ String interfazRiego(int humedad)
                           "<h1>Riego automatico</h1>";
     HtmlRespuesta +="<p></p>";
     HtmlRespuesta +="<p>Valor de la humedad del suelo ";
-    HtmlRespuesta +=String(humedad,0);
+    HtmlRespuesta +=String(humedad);
     HtmlRespuesta +=" %</p>";
     HtmlRespuesta +="<p></p>";
     //Creacion de los botones
     HtmlRespuesta +="<button type=\"button\" onClick=location.href='/riego1' style='margin:auto; background-color:green; color:#A9F5A9; padding:5px; border:2px solid black; width:200;'>PLANTA 1</button>"; 
     HtmlRespuesta +="<button type=\"button\" onClick=location.href='/riego2' style='margin:auto; background-color:green; color:#A9F5A9; padding:5px; border:2px solid black; width:200;'>PLANTA 2</button>"; 
-	HtmlRespuesta +="<p></p>";
-	//volver a la pagina inicial
-	HtmlRespuesta +="<a href='/'>Pagina inicial</a>"
+	  HtmlRespuesta +="<p></p>";
+	  //volver a la pagina inicial
+	  HtmlRespuesta +="<a href='/'>Pagina inicial</a>";
     HtmlRespuesta +="</body>"
                     "</html>";
                     

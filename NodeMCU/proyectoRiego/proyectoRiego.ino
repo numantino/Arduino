@@ -1,9 +1,7 @@
 #include <ESP8266WiFi.h>   
 #include <ESP8266WebServer.h> 
 #include <DHTesp.h> 
-#include "conf.h"
 #include "controlRiego.hpp"
-#include "controlSensores.hpp"
 #include "ESP8266_Utils.hpp"
 #include "Server.hpp"
 
@@ -14,9 +12,9 @@ void setup()
     //Iniciamos acceso wifi
     ConnectWiFi();
     delay(100);
-    //Iniciamos los sensores
-    pinMode(SENSOR_YL69, INPUT);
-    pinMode(RELE_1, OUTPUT);
+    //Inicializacion de los componentes
+    iniYL69(SENSOR_YL69, 200); // Minimo valor de humedad para el riego 
+    iniRele(RELE_1,7000); //tiempo de espera entre descarga (Delay 20 sec.)
     //Inicializamos servidor
     inicioServidor();
 }
