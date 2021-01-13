@@ -1,23 +1,13 @@
 /*
- * Clase encargada de controlar el SENSOR DHT22 de temperatura y humedad ambiente
+ * Clase encargada de generar un servidor en el dispositivo
  * 
+ * Version= 1.1
  */
-//VALORES 
-#define SENSOR_DHT22 D1    
+#include <ESP8266WiFi.h> 
 
-//Calse que realiza las comprobaciones de control
-DHTesp dht;
-/*
- * Recuperar los datos del sensor DHT22
- * Humedad --> String(lastValues.humidity,0),
- * Temperatura --> String(lastValues.temperature,0)
- */
-TempAndHumidity lecturaDatosDHT22()
-{
-  dht.setup(SENSOR_DHT22, DHTesp::DHT22);
-  TempAndHumidity lastValues = dht.getTempAndHumidity();
-  return lastValues;
-}
+//Objeto para el control del  servidor
+ESP8266WebServer server(80);
+
 /*
  * Interfaz web
  */
@@ -48,10 +38,37 @@ String interfazInformacionDHT22(float hum, float temp)
                     "</tr>";            
     HtmlRespuesta +="</table>";
     HtmlRespuesta +="<p></p>";
-	  //recalcular los valores
-	  HtmlRespuesta +="<a href='/'>Recalcular</a>";
+    //recalcular los valores
+    HtmlRespuesta +="<a href='/'>Recalcular</a>";
     HtmlRespuesta +="</body>"
                     "</html>";
                     
   return HtmlRespuesta;
+}
+
+// Funcion que se ejecutara en URI desconocida
+void pagNotFound() 
+{
+   server.send(404, "text/plain", "Not found");
+}
+// URI mustra informacion DHT22
+void envioDatosDHT22(String t, String h)
+{
+  server.send(200, "text/html", interfazInformacionDHT22(h,t));
+}
+void envioDatosDHT22()
+// Con este proceso se inicia el servidor con los datos de la wifi pasados por parametro
+void inicializacion()
+{
+  //Iniciamos acceso wifi
+  ConnectWiFi2(SSID_PROPIA,PWD_CASA);
+  delay(100);
+    
+   // Rutas
+   server.on("/", envioDatosDHT22);
+   server.onNotFound(pagNotFound);
+ 
+   // Iniciar servidor
+   server.begin();
+   Serial.println("HTTP servidor activo");
 }

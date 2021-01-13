@@ -1,2 +1,0 @@
-Lectura de la humedad y temperatura ambiente por medio del sensor DHT22.
-Ademas creamos un servidor por medio del NodeMCU donde publicaremos la infroamcion.

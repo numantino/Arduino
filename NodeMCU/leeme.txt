@@ -1,0 +1,9 @@
+Proyecto1
+	Lectura de la humedad y temperatura ambiente por medio del sensor DHT22.
+	Creacion de un cliente
+	Uso del protocolo IFTTT
+
+Proyecto2
+	Lectura de la humedad y temperatura ambiente por medio del sensor DHT22.
+	Creacion de un servidor en el dispositivo
+	Se puede obtener la informacion de los datos con la conexion a la pagina http://192.168.1.2
